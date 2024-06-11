@@ -1,4 +1,5 @@
 const express = require('express');
+const query = require('../mysql/index.js');
 const router = express.Router();
 let no = 2;
 board = [
@@ -11,43 +12,67 @@ board = [
 ];
 
 router.get('/', (req,res) => {
-    console.log(new Date(req.requestTime).toLocaleString());
-    res.send(board)
+    let page = Number(req.query.page);
+    console.log(page)
+    query("boardList",(page-1)*10)
+        .then(result => res.send(result));
 })
+
 router.get('/:no', (req,res) => {
     console.log('no:', req.params.no);
     const no = req.params.no;
-    let result = board.find(e => {
-        console.log(e);
-        return e.no == no;
-    });
-    res.send(result);
+    query("boardGet", no)
+        .then(result => res.send(result))
+    // let result = board.find(e => {
+    //     console.log(e);
+    //     return e.no == no;
+    // });
+    // res.send(result);
 })
-router.post('/', (req,res) => {
+
+const multer = require('multer');
+const upload = multer({ dest: 'D:/upload/' })
+router.post('/',upload.single("file") ,(req,res) => {
+    // 첨부파일이 있으면
+    //////
+    let data = { ...req.body};
+    if(req.file.filesize != null) {
+        data.filename = req.file.filename;
+        data.uploadfilename = req.file.uploadfilename;
+    }
+    //////
     console.log(req.body)
-    board.push(req.body);
-    res.send('boardInsert 라우트')
+    query("boardInsert", req.body)
+        .then(result => res.send(result))
+    // board.push(req.body);
+    // res.send('boardInsert 라우트')
 })
-router.put('/:no', (req,res) => {
+router.put('/:no', async (req,res) => {
     const no = req.params.no;
 
-    board = board.map((val,idx) => {
-        console.log(val)
-        return val.no == no ? {...val, ...req.body} : val
-    })
+    let result = await query("boardUpdate", [req.body, no]);
+    res.send(result);
+    // board = board.map((val,idx) => {
+        
+    //     return val.no == no ? {...val, ...req.body} : val
+    // })
     
-    res.send('boardUpdate 라우트')
+    // res.send('boardUpdate 라우트')
 })
 router.delete('/:no', (req,res) => {
+    const no = req.params.no;
+    query("boardDelete", no)
+        .then(result => res.send(result));
+    
     // indexOf -> split 로 하거나
     // filter된 결과를 다시 board에 담거나
-    let newBoard = board.filter((val,idx) => {
+    // let newBoard = board.filter((val,idx) => {
 
-        return val.no != no
-    })
-    board = newBoard;
+    //     return val.no != no
+    // })
+    // board = newBoard;
 
-    res.send('boardDelete 라우트')
+    // res.send('boardDelete 라우트')
 })
 
 module.exports = router;

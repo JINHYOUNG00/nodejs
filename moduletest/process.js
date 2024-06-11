@@ -12,8 +12,8 @@ process.on('exit', (code) => {
 // process.exit();
 console.log('1. 첫번재 메시지');
 // console.log(process.env);
-// end
-
 console.log('hostname', os.hostname());
 console.log('type', os.type());
 console.log('homedir', os.homedir());
+// end
+console.log('userName= ',process.env.USERNAME);

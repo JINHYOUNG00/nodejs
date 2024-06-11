@@ -1,10 +1,18 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const morgan = require('morgan');
+
+
 const boardRoute = require('./routes/board.js');
 const customerRoute = require('./routes/customer.js');
+const todoRoute = require('./routes/todo.js');
+const fileRoute = require('./routes/file.js');
 const app = express();
 const port = 3000;
 
+app.use(cors());
+app.use(morgan(':date :method :url :status :res[content-length] - :response-time ms'));
 
 app.use(cookieParser());
 app.use(express.urlencoded({extended:false}));
@@ -18,12 +26,10 @@ const requestTime = function (req, res, next) {
 
 app.use(requestTime)
 
-
-
-
-
 app.use("/board", boardRoute);
 app.use('/customer',customerRoute);
+app.use('/todo',todoRoute);
+app.use('/file',fileRoute);
 
 // 클라이언트에서 HTTP요청 메소드 중 GET을 이용해서 'host:port'로 요청을 보내면 실행되는 라우트 입니다.
 // app.method(path,(handler)) 

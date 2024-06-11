@@ -1,17 +1,32 @@
 const express = require('express');
 const router = express.Router();
+const query = require('../mysql/index.js'); // index.js 생략가능
 
 router.get('/' ,(req,res) => {
-    res.send('1');
+    query("customerList")
+        .then(result => res.send(result));
 })
 router.post('/' ,(req,res) => {
-    res.send('2');
+    console.log(req.body)
+    query("customerInsert", req.body)
+        .then(result => res.send(result));
 })
-router.put('/' ,(req,res) => {
-    res.send('3');
+// router.put('/:id' ,(req,res) => {
+//     const id = req.params.id;
+//     console.log(req.body);
+//     query("customerUpdate", [req.body, id])
+//     .then(result => res.send(result));
+// })
+router.put('/:id' ,async (req,res) => {
+    const id = req.params.id;
+    console.log(req.body);
+    let result = await query("customerUpdate", req.body.param)
+    res.send(result);
 })
-router.delete('/' ,(req,res) => {
-    res.send('4');
+router.delete('/:id' ,(req,res) => {
+    const id = req.params.id;
+    query("customerDelete", id)
+        .then(result => res.send(result));
 })
 
 module.exports = router;
